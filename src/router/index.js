@@ -1,11 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/LoginView.vue'
+
+function estaAutenticado(){
+  let resul = localStorage.getItem('auth') === 'true';
+  console.log(resul);
+  return resul;
+  
+}
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta:{
+      requiereAuth: true,//protegida
+    }
   },
   {
     path: '/about',
@@ -19,12 +30,30 @@ const routes = [
     path: '/estudiante',
     name: 'estudiante',
     component: ()=> import("../views/EstudianteView.vue")
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: ()=> LoginView
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if(to.meta.requiereAuth){
+    //Si no está autenticado
+    if(!estaAutenticado()){
+      next('/login')
+    }else{
+      next();
+    }
+  }else{
+    next();
+  }
 })
 
 export default router
