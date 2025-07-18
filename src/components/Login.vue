@@ -19,8 +19,9 @@ export default {
   },
   methods: {
     login(){
-      if(this.username==="admin" && this.password==="123"){
-          localStorage.setItem('usuario','admin');
+      if(this.username==="admin" || this.username === "estudiante"
+       && this.password==="123"){
+          localStorage.setItem('usuario',this.username);
           localStorage.setItem('auth','true');
           //redireccionar a la pagina de bienvenida
           this.$router.push("/home")

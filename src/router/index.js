@@ -2,6 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 
+import AboutView from '../views/AboutView.vue'
+import EstudianteView from '../views/EstudianteView.vue'
+import RecursoProhibidoView from '../views/RecursoProhibidoView.vue'
+import NotasIngresoView from '../views/NotasIngresoView.vue'
+
+import {obtenerPaginasPermitadas} from '../helpers/Autorizacion'
+
 function estaAutenticado(){
   let resul = localStorage.getItem('auth') === 'true';
   console.log(resul);
@@ -19,23 +26,45 @@ const routes = [
     }
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  },
-  {
     path: '/estudiante',
     name: 'estudiante',
-    component: ()=> import("../views/EstudianteView.vue")
+    component: EstudianteView,
+    meta:{
+      requiereAuth: true,//protegida
+    }
   },
   {
     path: '/login',
     name: 'login',
-    component: ()=> LoginView
-  }
+    component: LoginView,
+    meta:{
+      requiereAuth: false,//protegida
+    }
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: AboutView,
+    meta:{
+      requiereAuth: true,//protegida
+    }
+  },
+  {
+    path: '/notas',
+    name: 'notas',
+    component: NotasIngresoView,
+    meta:{
+      requiereAuth: true,//protegida
+    }
+  },
+  {
+    path: '/403',
+    name: '403',
+    component: RecursoProhibidoView,
+    meta:{
+      requiereAuth: true,//protegida
+    }
+  },
 ]
 
 const router = createRouter({
@@ -44,12 +73,19 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  //Validando si la página debe estar autenticada (requiereAuth: true)
   if(to.meta.requiereAuth){
     //Si no está autenticado
     if(!estaAutenticado()){
       next('/login')
     }else{
-      next();
+      let usuario = localStorage.getItem('usuario');
+      let paginas = obtenerPaginasPermitadas(usuario);
+      if(paginas.includes(to.path)){
+        next();
+      } else {
+        next('/403');
+      }
     }
   }else{
     next();
