@@ -6,7 +6,13 @@ const URL_API = "http://localhost:8081/api/matricula/v1/estudiantes";
 //public void guardar(@RequestBody Estudiante estudanteTo)
 
 const guardar = async (body) => {
-    const data = axios.post(URL_API, body).then(r => r.data);
+    let token = '';
+  
+    const data = axios.post(`${URL_API}`, body,  {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }).then(r => r.data);
     console.log(data);
 }
 
@@ -29,7 +35,6 @@ const borrarPorId = async (id)=>{
     axios.delete(`${URL_API}/${id}`).then(r => r.data);
 
 }
-
 
 
 //fachadas
